@@ -3,6 +3,7 @@
 #include "stdafx.h"
 #include <iostream>
 #include <vector>
+#include <algorithm>
 #include "OrgTree.h"
 
 using namespace std;
@@ -20,44 +21,6 @@ TREENODEPTR cloudDevelopment;
 TREENODEPTR magicBagLeader;
 TREENODEPTR softwareEngineerI;
 TREENODEPTR softwareEngineerII;
-
-
-string* getTitles() {
-	string titles[] = { 
-		"President", 
-		"VP Sales",
-		"VP Operations",
-		"VP Software Development",
-		"Director of Marketing",
-		"Director of Public Relations",
-		"MagicBag Team Leader",
-		"Cloud Development",
-		"Digital Media Specialist",
-		"Head of Television and Print Advertising",
-		"Software Engineer I",
-		"Software Engineer II",
-	};
-	return titles;
-}
-
-
-string* getNames() {
-	string names[] = {
-		"George Orwell",
-		"Mark Zuckerberg",
-		"Bill Gates",
-		"Ayn Rand",
-		"George Lucas",
-		"Kurt Vonnegut",
-		"Will Wheaton",
-		"Bob Ross",
-		"Al Gore",
-		"George R.R Martin",
-		"Donald Knuth",
-		"Marvin Minsky",
-	};
-	return names;
-}
 
 
 void setupTree(OrgTree& tree) {
@@ -165,7 +128,7 @@ bool testGetLastChild() {
 		return false;
 	}
 
-	cout << ".";
+	
 	return true;
 }
 
@@ -197,7 +160,7 @@ bool testAppendChild() {
 		return false;
 	}
 
-	cout << ".";
+	
 	return true;
 }
 
@@ -210,7 +173,7 @@ bool testConstructor() {
 		return false;
 	} 
 	
-	cout << ".";
+	
 	return true;
 }
 
@@ -269,7 +232,7 @@ bool testAddRoot() {
 		return false;
 	}
 	
-	cout << ".";
+	
 	return true;
 }
 
@@ -291,7 +254,7 @@ bool testGetRoot() {
 		return false;
 	}
 
-	cout << ".";
+	
 	return true;
 }
 
@@ -314,7 +277,7 @@ bool testLeftmostChild() {
 		cout << "OrgTree::leftmostChild() on a leaf does not return null pointer!" << endl;
 	}
 
-	cout << ".";
+	
 	return true;
 }
 
@@ -348,7 +311,7 @@ bool testRightSibling() {
 		return false;
 	}
 
-	cout << ".";
+	
 	return true;
 }
 
@@ -410,7 +373,7 @@ bool testFind() {
 		return false;
 	}
 
-	cout << ".";
+	
 	return true;
 }
 
@@ -474,7 +437,6 @@ bool testHire() {
 		return false;
 	}
 
-	cout << ".";
 	return true;
 }
 
@@ -502,6 +464,14 @@ bool testFire() {
 		return false;
 	}
 
+
+	success = myTree.fire("Nobody");
+
+	if (success) {
+		cout << "OrgTree::fire() reports successful deletion of a title that doesn't exist!" << endl;
+		return false;
+	}
+
 	success = myTree.fire("Software Engineer II");
 
 	if (!success) {
@@ -517,8 +487,121 @@ bool testFire() {
 		return false;
 	}
 
-	cout << ".";
+	success = myTree.fire("Director of Marketing");
+
+	if (!success) {
+		cout << "OrgTree::fire() reports failure to delete Director of Marketing" << endl;
+		return false;
+	}
+	else if (myTree.find("Director of Marketing") != TREENULLPTR) {
+		cout << "OrgTree::fire() deleted Director of Marketing but it still exists in tree" << endl;
+		return false;
+	}
+	else if (vpSales->getLeftChild() != directorPR) {
+		cout << "OrgTree::fire() does not update the left child of vpSales when firing director of marketing" << endl;
+		return false;
+	}
+
+	success = myTree.fire("VP Operations");
+
+	if (!success) {
+		cout << "OrgTree::fire() reports failure to delete VP Operations" << endl;
+		return false;
+	}
+	else if (myTree.find("VP Operations") != TREENULLPTR) {
+		cout << "OrgTree::fire() deleted VP Operations but it still exists in tree" << endl;
+		return false;
+	}
+	else if (vpSales->getRightSibling() != vpSoftwareDevelopment) {
+		cout << "OrgTree::fire() does not update rightSibling pointer of VP Sales" << endl;
+		return false;
+	}
+
 	return true;
+}
+
+
+bool testGetSize() {
+	OrgTree& myTree = *(new OrgTree());
+
+	if (myTree.getSize() != 0) {
+		cout << "OrgTree::getSize() not equal to 0 on a brand new tree" << endl;
+		return false;
+	}
+
+	myTree.addRoot("Test", "Just 1");
+
+	if (myTree.getSize() != 1) {
+		cout << "OrgTree::getSize() not equal to 1 after setting root" << endl;
+		return false;
+	}
+
+	myTree.hire(myTree.getRoot(), "Test2", "Just 2");
+
+	if (myTree.getSize() != 2) {
+		cout << "OrgTree::getSize() not equal to 2 after hiring one employee" << endl;
+		return false;
+	}
+
+	delete myTree.root;
+	myTree.size = 0;
+
+	setupTreeWithHire(myTree);
+
+	if (myTree.getSize() != 12) {
+		cout << "OrgTree::getSize() not equal to 12 after setting up entire tree" << endl;
+		return false;
+	}
+}
+
+
+bool testRead() {
+	OrgTree& myTree = *(new OrgTree());
+
+	bool success = myTree.read("C:\\Users\\ian\\Documents\\Visual Studio 2015\\Projects\\CS3100Project2\\test_proper.txt");
+
+	if (!success) {
+		cout << "OrgTree::read() fails with test_proper.txt failed" << endl;
+		return false;
+	}
+	else if (myTree.getSize() != 12) {
+		cout << "OrgTree::read() did not add the proper amount of nodes from file test_proper.txt" << endl;
+		return false;
+	}
+
+	TREENODEPTR president = myTree.getRoot();
+
+	if (president == TREENULLPTR || president->getTitle() != "President") {
+		cout << "OrgTree::read() did not set the root to President" << endl;
+		return false;
+	}
+
+	TREENODEPTR vpSales = president->getLeftChild();
+
+	if (vpSales == TREENULLPTR || vpSales->getTitle() != "VP Sales") {
+		cout << "OrgTree::read() did not set the root's leftmost child to VP Sales" << endl;
+		return false;
+	}
+
+	TREENODEPTR vpOperations = vpSales->getRightSibling();
+
+	if (vpSales == TREENULLPTR || vpSales->getTitle() != "VP Sales") {
+		cout << "OrgTree::read() did not set the root's leftmost child to VP Sales" << endl;
+		return false;
+	}
+
+	return true;
+}
+
+
+void checkTestSuccess(bool success, int& passes, int& failures) {
+	if (success) {
+		cout << ".";
+		passes++;
+	}
+	else {
+		failures++;
+	}
 }
 
 
@@ -526,77 +609,19 @@ int main()
 {
 	int passes = 0;
 	int failures = 0;
-	
-	if (testGetLastChild()) {
-		passes++;
-	}
-	else {
-		failures++;
-	}
 
-	if (testAppendChild()) {
-		passes++;
-	}
-	else {
-		failures++;
-	}
-
-	if (testConstructor()) {
-		passes++;
-	}
-	else {
-		failures++;
-	}
-
-	if (testAddRoot()) {
-		passes++;
-	}
-	else {
-		failures++;
-	}
-
-	if (testGetRoot()) {
-		passes++;
-	}
-	else {
-		failures++;
-	}
-
-
-	if (testLeftmostChild()) {
-		passes++;
-	}
-	else {
-		failures++;
-	}
-
-	if (testRightSibling()) {
-		passes++;
-	}
-	else {
-		failures++;
-	}
-
-	if (testFind()) {
-		passes++;
-	}
-	else {
-		failures++;
-	}
-
-	if (testHire()) {
-		passes++;
-	}
-	else {
-		failures++;
-	}
-
-	if (testFire()) {
-		passes++;
-	}
-	else {
-		failures++;
-	}
+	checkTestSuccess(testGetLastChild(), passes, failures);
+	checkTestSuccess(testAppendChild(), passes, failures);
+	checkTestSuccess(testConstructor(), passes, failures);
+	checkTestSuccess(testAddRoot(), passes, failures);
+	checkTestSuccess(testGetRoot(), passes, failures);
+	checkTestSuccess(testLeftmostChild(), passes, failures);
+	checkTestSuccess(testRightSibling(), passes, failures);
+	checkTestSuccess(testFind(), passes, failures);
+	checkTestSuccess(testHire(), passes, failures);
+	checkTestSuccess(testFire(), passes, failures);
+	checkTestSuccess(testGetSize(), passes, failures);
+	checkTestSuccess(testRead(), passes, failures);
 
 	cout << endl;
 

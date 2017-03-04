@@ -1,6 +1,8 @@
 #pragma once
 #include <string>
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include "TreeNode.h"
 
 #define TREENODEPTR TreeNode*
@@ -12,11 +14,41 @@ using namespace std;
 
 class OrgTree
 {
+private:
+	void find_and_replace(string& source, const string& find, const string& replace) {
+		for (string::size_type i = source.find(find, 0); i != string::npos; i = source.find(find, i)) {
+			source.replace(i, find.length(), replace);
+			i += replace.length();
+		}
+	}
+
+	bool parseLineFromFile(string& inputLine, string& title, string& name) {
+		find_and_replace(inputLine, ", ", ",");
+		istringstream iss(inputLine);
+		
+		title = "";
+		name = "";
+
+		getline(iss, title, ',');
+		getline(iss, name, ',');
+
+		if (title == "") {
+			return false;
+		}
+		else if (name == "") {
+			return false;
+		}
+
+		return true;
+	}
+
 public:
 	TREENODEPTR root;
+	int size;
 
 	OrgTree()
 	{
+		this->size = 0;
 		this->root = TREENULLPTR;
 	}
 
@@ -36,6 +68,7 @@ public:
 			newRoot->setLeftChild(this->root);
 		}
 
+		this->size++;
 		this->root = newRoot;
 	}
 
@@ -58,6 +91,12 @@ public:
 	void hire(TREENODEPTR employer, string newTitle, string newName) {
 		TREENODEPTR newNode = new TreeNode(newTitle, newName);
 		employer->appendChild(newNode);
+		this->size++;
+	}
+
+	void hire(TREENODEPTR employer, TREENODEPTR employee) {
+		employer->appendChild(employee);
+		this->size++;
 	}
 
 	bool fire(string formerTitle) {
@@ -72,19 +111,80 @@ public:
 		}
 
 		TreeNode* childToFire = this->find(formerTitle);
+
+		if (childToFire == NULL) {
+			return false;
+		}
+
 		childToFire->parent->fireChild(childToFire);
+		this->size--;
 		return true;
 	}
 
 	bool read(string filename) {
-		return false;
+		ifstream infile(filename);
+		if (!infile.good()) {
+			// The file doesn't exist.
+			return false;
+		}
+
+		string line;
+		string title;
+		string name;
+
+		bool complete = false;
+
+		getline(infile, line);
+
+		if (line.empty()) {
+			return false;
+		}
+
+		if (!this->parseLineFromFile(line, title, name)) {
+			return false;
+		}
+
+		this->addRoot(title, name);
+		TreeNode* currentRoot = this->root;
+
+		while (getline(infile, line)) {
+			if (complete) {
+				// We've determined that the tree has ended, but there is still data in the file!
+				delete this->root;
+				return false;
+			}
+			if (line == ")") {
+				if (currentRoot == this->root) {
+					// We're back at the root node, so we're done with the tree.
+					// Don't return right away, continue on to see if there are any other lines in the file
+					// in which case the format is invalid.
+					complete = true;
+					continue;
+				}
+
+				currentRoot = currentRoot->getParent();
+				continue;
+			}
+
+			if (!this->parseLineFromFile(line, title, name)) {
+				// We couldn't parse this line of input, meaning the file is formatted incorrectly.
+				delete this->root;
+				return false;
+			}
+
+			TreeNode* newTreeNode = new TreeNode(title, name);
+			this->hire(currentRoot, newTreeNode);
+			currentRoot = newTreeNode;
+		}
+
+		return complete;
 	}
 
 	void write(string filename) {
 	}
 
 	unsigned int getSize() {
-		return 0;
+		return this->size;
 	}
 
 	void printSubTree(TREENODEPTR subTreeRoot) {
