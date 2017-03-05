@@ -1,5 +1,8 @@
 // CS3100Project2.cpp : Defines the entry point for the console application.
 //
+#define CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
 #include "stdafx.h"
 #include <iostream>
 #include <vector>
@@ -543,8 +546,7 @@ bool testGetSize() {
 		return false;
 	}
 
-	delete myTree.root;
-	myTree.size = 0;
+	myTree = *(new OrgTree());
 
 	setupTreeWithHire(myTree);
 
@@ -552,6 +554,8 @@ bool testGetSize() {
 		cout << "OrgTree::getSize() not equal to 12 after setting up entire tree" << endl;
 		return false;
 	}
+
+	return true;
 }
 
 
@@ -561,7 +565,7 @@ bool testRead() {
 	bool success = myTree.read("C:\\Users\\ian\\Documents\\Visual Studio 2015\\Projects\\CS3100Project2\\test_proper.txt");
 
 	if (!success) {
-		cout << "OrgTree::read() fails with test_proper.txt failed" << endl;
+		cout << "OrgTree::read() fails with test_proper.txt" << endl;
 		return false;
 	}
 	else if (myTree.getSize() != 12) {
@@ -588,6 +592,18 @@ bool testRead() {
 	if (vpSales == TREENULLPTR || vpSales->getTitle() != "VP Sales") {
 		cout << "OrgTree::read() did not set the root's leftmost child to VP Sales" << endl;
 		return false;
+	}
+
+	return true;
+}
+
+
+bool testMemoryLeaks() {
+	for (int i = 0; i < 10000; i++) {
+		OrgTree firstTree = OrgTree();
+		OrgTree secondTree = OrgTree();
+		setupTree(firstTree);
+		setupTreeWithHire(secondTree);
 	}
 
 	return true;
@@ -622,6 +638,7 @@ int main()
 	checkTestSuccess(testFire(), passes, failures);
 	checkTestSuccess(testGetSize(), passes, failures);
 	checkTestSuccess(testRead(), passes, failures);
+	checkTestSuccess(testMemoryLeaks(), passes, failures);
 
 	cout << endl;
 
@@ -633,6 +650,8 @@ int main()
 		cout << "PASSED" << endl;
 		cout << "Tests Ran: " << passes << endl;
 	}
+
+	_CrtDumpMemoryLeaks();
 
 	system("pause");
     return 0;
