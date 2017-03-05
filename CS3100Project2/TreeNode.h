@@ -56,7 +56,7 @@ public:
 	}
 
 	TreeNode* getLastChild() {
-		if (this->leftChild == NULL) {
+		if (!this->leftChild) {
 			return NULL;
 		}
 
@@ -64,7 +64,7 @@ public:
 		TreeNode* currentChild = this->leftChild;
 		TreeNode* nextChild = this->leftChild->getRightSibling();
 
-		while (nextChild != NULL) {
+		while (nextChild) {
 			// Loop through, incrementing current and next child until next child is equal to null.
 			// Then return currentChild.
 			currentChild = nextChild;
@@ -77,7 +77,7 @@ public:
 	void appendChild(TreeNode* newChild) {
 		TreeNode* currentLastChild = this->getLastChild();
 
-		if (currentLastChild == NULL) {
+		if (!currentLastChild) {
 			// If we don't have a child yet, we need to set it as our left, not as a right sibling.
 			this->setLeftChild(newChild);
 		}
@@ -118,7 +118,7 @@ public:
 	}
 
 	TreeNode* findLeftSibling() {
-		if (this->parent == NULL) {
+		if (!this->parent) {
 			return NULL;
 		}
 
@@ -127,13 +127,13 @@ public:
 		}
 
 		TreeNode* currentChild = this->parent->getLeftChild();
-		if (currentChild == NULL) {
+		if (!currentChild) {
 			return NULL;
 		}
 
 		TreeNode* nextChild = currentChild->getRightSibling();
 
-		while (nextChild != NULL && nextChild != this) {
+		while (nextChild && nextChild != this) {
 			currentChild = nextChild;
 			nextChild = nextChild->getRightSibling();
 		}
@@ -145,7 +145,7 @@ public:
 		TreeNode* leftSibling = child->findLeftSibling();
 		TreeNode* rightSibling = child->getRightSibling();
 
-		if (leftSibling != NULL) {
+		if (leftSibling) {
 			// This guy has a right sibling, so we have to link that up directly to what his left sibling was.
 			// If he had a left sibling, we need to change the left sibling's rightSibling pointer to the guys right sibling
 			// since he's moving on to bigger and better things (the unemployment line).
@@ -153,7 +153,7 @@ public:
 			// to null if there isn't a right sibling anyway.
 			leftSibling->setRightSibling(rightSibling);
 		}
-		else if (leftSibling == NULL) {
+		else {
 			// If he was our leftmost child, update our leftmost child pointer to be his old right sibling.
 			// We don't check to see if rightSibling is a null pointer because we want to set our left child
 			// to null if there isn't a right sibling anyway.
@@ -164,9 +164,44 @@ public:
 		// We didn't need him anyway.
 		TreeNode* hisChild = child->getLeftChild();
 
-		if (hisChild != NULL) {
+		if (hisChild) {
 			this->appendChild(hisChild);
 		}
+	}
+
+	string formatString() {
+		return this->title + ", " + this->name + "\n";
+	}
+
+	void printTree(string currentIndentation, ostream& os) {
+		os << currentIndentation << this->title << ": " << this->name << "\n";
+
+		if (this->leftChild) {
+			string childIndentation = currentIndentation + "    ";
+			this->leftChild->printTree(childIndentation, os);
+		}
+
+		if (this->rightSibling) {
+			this->rightSibling->printTree(currentIndentation, os);
+		}
+	}
+
+	string outputTree() {
+		string outputData = this->formatString();
+
+		if (this->leftChild) {
+			outputData += this->leftChild->outputTree();
+		}
+
+		if (this->rightSibling) {
+			outputData += ")\n";
+			outputData += this->rightSibling->outputTree();
+		}
+		else {
+			outputData += ")\n";
+		}
+
+		return outputData;
 	}
 
 	~TreeNode() {

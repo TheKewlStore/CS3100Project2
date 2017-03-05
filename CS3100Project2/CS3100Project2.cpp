@@ -1,8 +1,5 @@
 // CS3100Project2.cpp : Defines the entry point for the console application.
 //
-#define CRTDBG_MAP_ALLOC
-#include <stdlib.h>
-#include <crtdbg.h>
 #include "stdafx.h"
 #include <iostream>
 #include <vector>
@@ -24,6 +21,12 @@ TREENODEPTR cloudDevelopment;
 TREENODEPTR magicBagLeader;
 TREENODEPTR softwareEngineerI;
 TREENODEPTR softwareEngineerII;
+
+
+ifstream::pos_type filesize(const string filename) {
+	ifstream in(filename, ifstream::ate | ifstream::binary);
+	return in.tellg();
+}
 
 
 void setupTree(OrgTree& tree) {
@@ -104,6 +107,93 @@ void setupTreeWithHire(OrgTree& tree) {
 	softwareEngineerI = tree.find("Software Engineer I");
 	softwareEngineerII = tree.find("Software Engineer II");
 
+}
+
+
+bool verifyCompleteTree(OrgTree& myTree, string functionName) {
+	TREENODEPTR president = myTree.getRoot();
+
+	if (president == TREENULLPTR || president->getTitle() != "President") {
+		cout << functionName + " did not set the root to President" << endl;
+		return false;
+	}
+
+	TREENODEPTR vpSales = president->getLeftChild();
+
+	if (vpSales == TREENULLPTR || vpSales->getTitle() != "VP Sales") {
+		cout << functionName + " did not set the root's leftmost child to VP Sales" << endl;
+		return false;
+	}
+
+	TREENODEPTR vpOperations = vpSales->getRightSibling();
+
+	if (vpSales == TREENULLPTR || vpOperations->getTitle() != "VP Operations") {
+		cout << functionName + " did not set the root's leftmost child to VP Operations" << endl;
+		return false;
+	}
+
+	TREENODEPTR vpSoftwareDev = vpOperations->getRightSibling();
+
+	if (vpSoftwareDev == TREENULLPTR || vpSoftwareDev->getTitle() != "VP Software Development") {
+		cout << functionName + " did not set the root's leftmost child to VP Software Development" << endl;
+		return false;
+	}
+
+	TREENODEPTR directorMarketing = vpSales->getLeftChild();
+
+	if (directorMarketing == TREENULLPTR || directorMarketing->getTitle() != "Director of Marketing") {
+		cout << functionName + " did not set the root's leftmost child to Director of Marketing" << endl;
+		return false;
+	}
+
+	TREENODEPTR directorPR = directorMarketing->getRightSibling();
+
+	if (directorPR == TREENULLPTR || directorPR->getTitle() != "Director of Public Relations") {
+		cout << functionName + " did not set the root's leftmost child to Director of PR" << endl;
+		return false;
+	}
+
+	TREENODEPTR digitalMedia = directorMarketing->getLeftChild();
+
+	if (digitalMedia == TREENULLPTR || digitalMedia->getTitle() != "Digital Media Specialist") {
+		cout << functionName + " did not set the root's leftmost child to Digital Media Specialist" << endl;
+		return false;
+	}
+
+	TREENODEPTR headOfAdvertising = digitalMedia->getRightSibling();
+
+	if (headOfAdvertising == TREENULLPTR || headOfAdvertising->getTitle() != "Head of Television and Print Advertising") {
+		cout << functionName + " did not set the root's leftmost child to Head of Advertising" << endl;
+		return false;
+	}
+
+	TREENODEPTR magicBagLeader = vpSoftwareDev->getLeftChild();
+
+	if (magicBagLeader == TREENULLPTR || magicBagLeader->getTitle() != "MagicBag Team Leader") {
+		cout << functionName + " did not set the root's leftmost child to MagicBag Team Leader" << endl;
+		return false;
+	}
+
+	TREENODEPTR cloudDevelopment = magicBagLeader->getRightSibling();
+
+	if (cloudDevelopment == TREENULLPTR || cloudDevelopment->getTitle() != "Cloud Development") {
+		cout << functionName + " did not set the root's leftmost child to Cloud Development" << endl;
+		return false;
+	}
+
+	TREENODEPTR softwareEngineerI = magicBagLeader->getLeftChild();
+
+	if (softwareEngineerI == TREENULLPTR || softwareEngineerI->getTitle() != "Software Engineer I") {
+		cout << functionName + " did not set the root's leftmost child to Software Engineer I" << endl;
+		return false;
+	}
+
+	TREENODEPTR softwareEngineerII = softwareEngineerI->getRightSibling();
+
+	if (softwareEngineerII == TREENULLPTR || softwareEngineerII->getTitle() != "Software Engineer II") {
+		cout << functionName + " did not set the root's leftmost child to Software Engineer II" << endl;
+		return false;
+	}
 }
 
 
@@ -559,10 +649,60 @@ bool testGetSize() {
 }
 
 
+bool testWrite() {
+	OrgTree& myTree = *(new OrgTree());
+	string originalFilename = "C:\\Users\\iwasf\\Dropbox\\School\\CS3100\\Projects\\CS3100Project2\\test_proper.txt";
+	string outputFilename = "C:\\Users\\iwasf\\Dropbox\\School\\CS3100\\Projects\\CS3100Project2\\test_proper_write.txt";
+	string simpleOutputFilename = "C:\\Users\\iwasf\\Dropbox\\School\\CS3100\\Projects\\CS3100Project2\\test_output_variant.txt";
+
+	myTree.read(originalFilename);
+	myTree.write(outputFilename);
+
+	ifstream::pos_type originalFilesize = filesize(originalFilename);
+	ifstream::pos_type outputFilesize = filesize(outputFilename);
+
+	if (originalFilesize != outputFilesize) {
+		cout << "Output file does not match original file!" << endl;
+		return false;
+	}
+
+	myTree = *(new OrgTree());
+	myTree.addRoot("President", "George Orwell");
+	TREENODEPTR myRoot = myTree.getRoot();
+	myTree.hire(myRoot, "VP Sales", "Mark Zuckerberg");
+	myTree.hire(myRoot, "VP Operations", "Bill Gates");
+	myTree.hire(myTree.find("VP Sales"), "Director of Marketing", "George Lucas");
+	myTree.hire(myTree.find("Director of Marketing"), "Digital Media Specialist", "Al Gore");
+	myTree.hire(myTree.find("Director of Marketing"), "Head of Advertising", "George R.R Martin");
+	myTree.fire("VP Sales");
+
+	myTree.write(simpleOutputFilename);
+
+	myTree = *(new OrgTree());
+
+	bool success = myTree.read(outputFilename);
+
+	if (!success) {
+		cout << "OrgTree::write() does not generate the proper format" << endl;
+		return false;
+	}
+	else if (myTree.getSize() != 12) {
+		cout << "OrgTree::write() does not generate all the proper nodes" << endl;
+		return false;
+	}
+	else if (!verifyCompleteTree(myTree, "OrgTree::write()")) {
+		return false;
+	}
+
+	return true;
+}
+
+
 bool testRead() {
 	OrgTree& myTree = *(new OrgTree());
+	string originalFilename = "C:\\Users\\iwasf\\Dropbox\\School\\CS3100\\Projects\\CS3100Project2\\test_proper.txt";
 
-	bool success = myTree.read("C:\\Users\\ian\\Documents\\Visual Studio 2015\\Projects\\CS3100Project2\\test_proper.txt");
+	bool success = myTree.read(originalFilename);
 
 	if (!success) {
 		cout << "OrgTree::read() fails with test_proper.txt" << endl;
@@ -573,24 +713,39 @@ bool testRead() {
 		return false;
 	}
 
-	TREENODEPTR president = myTree.getRoot();
-
-	if (president == TREENULLPTR || president->getTitle() != "President") {
-		cout << "OrgTree::read() did not set the root to President" << endl;
+	if (!verifyCompleteTree(myTree, "OrgTree::read()")) {
 		return false;
 	}
 
-	TREENODEPTR vpSales = president->getLeftChild();
+	return true;
+}
 
-	if (vpSales == TREENULLPTR || vpSales->getTitle() != "VP Sales") {
-		cout << "OrgTree::read() did not set the root's leftmost child to VP Sales" << endl;
-		return false;
-	}
 
-	TREENODEPTR vpOperations = vpSales->getRightSibling();
+bool testPrintSubtree() {
+	OrgTree myTree = *(new OrgTree());
+	setupTreeWithHire(myTree);
 
-	if (vpSales == TREENULLPTR || vpSales->getTitle() != "VP Sales") {
-		cout << "OrgTree::read() did not set the root's leftmost child to VP Sales" << endl;
+	stringstream myStream;
+	string expectedData = 
+		"President: George Orwell\n"
+		"    VP Sales: Mark Zuckerberg\n"
+		"        Director of Marketing: George Lucas\n"
+		"            Digital Media Specialist: Al Gore\n"
+		"            Head of Television and Print Advertising: George R.R Martin\n"
+		"        Director of Public Relations: Kurt Vonnegut\n"
+		"    VP Operations: Bill Gates\n"
+		"        MagicBag Team Leader: Will Wheaton\n"
+		"            Software Engineer I: Donald Knuth\n"
+		"            Software Engineer II: Marvin Minsky\n"
+		"        Cloud Development: Bob Ross\n"
+		"    VP Software Development: Ayn Rand\n";
+
+	myTree.printSubTree(myTree.getRoot(), myStream);
+
+	string actualData = myStream.str();
+
+	if (actualData != expectedData) {
+		cout << "OrgTree::printSubTree() does not print the expected formatted response to the ostream" << endl;
 		return false;
 	}
 
@@ -599,7 +754,7 @@ bool testRead() {
 
 
 bool testMemoryLeaks() {
-	for (int i = 0; i < 10000; i++) {
+	for (int i = 0; i < 100; i++) {
 		OrgTree firstTree = OrgTree();
 		OrgTree secondTree = OrgTree();
 		setupTree(firstTree);
@@ -638,20 +793,21 @@ int main()
 	checkTestSuccess(testFire(), passes, failures);
 	checkTestSuccess(testGetSize(), passes, failures);
 	checkTestSuccess(testRead(), passes, failures);
+	checkTestSuccess(testWrite(), passes, failures);
+	checkTestSuccess(testPrintSubtree(), passes, failures);
 	checkTestSuccess(testMemoryLeaks(), passes, failures);
 
 	cout << endl;
 
 	if (failures > 0) {
 		cout << "Testcase finished with failures" << endl;
-		cout << "Tests Passed: " << passes << " Tests Failed: " << failures << endl;
+		cout << "Tests Passed: " << passes << endl;
+		cout << "Tests Failed: " << failures << endl;
 	}
 	else {
 		cout << "PASSED" << endl;
 		cout << "Tests Ran: " << passes << endl;
 	}
-
-	_CrtDumpMemoryLeaks();
 
 	system("pause");
     return 0;

@@ -181,6 +181,16 @@ public:
 	}
 
 	void write(string filename) {
+		ofstream outputFile(filename);
+
+		if (!outputFile.is_open()) {
+			// We couldn't open the file for some reason.
+			// Not sure what to do in this case.
+			return;
+		}
+
+		string outputData = this->root->outputTree();
+		outputFile << outputData;
 	}
 
 	unsigned int getSize() {
@@ -188,7 +198,10 @@ public:
 	}
 
 	void printSubTree(TREENODEPTR subTreeRoot) {
-		cout << "";
+		subTreeRoot->printTree("", cout);
+	}
+
+	void printSubTree(TREENODEPTR subTreeRoot, ostream& os) {
+		subTreeRoot->printTree("", os);
 	}
 };
-
