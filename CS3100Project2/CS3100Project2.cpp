@@ -8,7 +8,6 @@
 
 using namespace std;
 
-
 TREENODEPTR president;
 TREENODEPTR vpSales;
 TREENODEPTR directorPR;

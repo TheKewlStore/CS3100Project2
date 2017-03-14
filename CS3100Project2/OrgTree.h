@@ -11,7 +11,10 @@
 
 using namespace std;
 
+/* Represent a single general tree of the hierarchy of an organization.
 
+	Nodes in the tree represent an employee with a name and title.
+*/
 class OrgTree
 {
 private:
