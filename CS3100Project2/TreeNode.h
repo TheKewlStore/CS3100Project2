@@ -93,7 +93,7 @@ public:
 		Best-case asymptotic run-time: T(1)
 	*/
 	TreeNode* getLastChild() {
-		if (this->leftChild == NULL) {
+		if (!this->leftChild) {
 			return NULL;
 		}
 
@@ -101,7 +101,7 @@ public:
 		TreeNode* currentChild = this->leftChild;
 		TreeNode* nextChild = this->leftChild->getRightSibling();
 
-		while (nextChild != NULL) {
+		while (nextChild) {
 			// Loop through, incrementing current and next child until next child is equal to null.
 			// Then return currentChild.
 			currentChild = nextChild;
@@ -124,7 +124,7 @@ public:
 		// T(n) <- worst
 		TreeNode* currentLastChild = this->getLastChild();
 
-		if (currentLastChild == NULL) {
+		if (!currentLastChild) {
 			// If we don't have a child yet, we need to set it as our left, not as a right sibling.
 			this->setLeftChild(newChild);
 		}
@@ -179,7 +179,7 @@ public:
 		Best-case asymptotic run-time: T(1)
 	*/
 	TreeNode* findLeftSibling() {
-		if (this->parent == NULL) {
+		if (!this->parent) {
 			// We don't have a parent, so no way we have a left sibling.
 			return NULL;
 		}
@@ -191,7 +191,7 @@ public:
 
 		TreeNode* currentChild = this->parent->getLeftChild();
 
-		if (currentChild == NULL) {
+		if (!currentChild) {
 			// Somehow our parent doesn't have a left child. 
 			// Not sure that this check is worth it, but i'd rather not find out.
 			return NULL;
@@ -199,7 +199,7 @@ public:
 
 		TreeNode* nextChild = currentChild->getRightSibling();
 
-		while (nextChild != NULL && nextChild != this) {
+		while (nextChild && nextChild != this) {
 			// Keep a reference to the currentChild, which will be used as a reference to our
 			// leftSibling, and check the rightSibling to see if it is us.
 			// If it is, currentChild will be our leftSibling.
@@ -228,7 +228,7 @@ public:
 		// T(1)
 		TreeNode* rightSibling = child->getRightSibling();
 
-		if (leftSibling != NULL) {
+		if (leftSibling) {
 			// This guy has a right sibling, so we have to link that up directly to what his left sibling was.
 			// If he had a left sibling, we need to change the left sibling's rightSibling pointer to the guys right sibling
 			// since he's moving on to bigger and better things (the unemployment line).
@@ -250,10 +250,45 @@ public:
 		// T(1)
 		TreeNode* hisChild = child->getLeftChild();
 
-		if (hisChild != NULL) {
+		if (hisChild) {
 			// T(1)
 			this->appendChild(hisChild);
 		}
+	}
+
+	string formatString() {
+		return this->title + ", " + this->name + "\n";
+	}
+
+	void printTree(string currentIndentation, ostream& os) {
+		os << currentIndentation << this->title << ": " << this->name << "\n";
+
+		if (this->leftChild) {
+			string childIndentation = currentIndentation + "    ";
+			this->leftChild->printTree(childIndentation, os);
+		}
+
+		if (this->rightSibling) {
+			this->rightSibling->printTree(currentIndentation, os);
+		}
+	}
+
+	string outputTree() {
+		string outputData = this->formatString();
+
+		if (this->leftChild) {
+			outputData += this->leftChild->outputTree();
+		}
+
+		if (this->rightSibling) {
+			outputData += ")\n";
+			outputData += this->rightSibling->outputTree();
+		}
+		else {
+			outputData += ")\n";
+		}
+
+		return outputData;
 	}
 
 	/*  TreeNode Destructor, free up all the pointers.
