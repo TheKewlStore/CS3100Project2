@@ -8,7 +8,6 @@
 
 using namespace std;
 
-
 TREENODEPTR president;
 TREENODEPTR vpSales;
 TREENODEPTR directorPR;
@@ -651,9 +650,9 @@ bool testGetSize() {
 
 bool testWrite() {
 	OrgTree& myTree = *(new OrgTree());
-	string originalFilename = "C:\\Users\\iwasf\\Dropbox\\School\\CS3100\\Projects\\CS3100Project2\\test_proper.txt";
-	string outputFilename = "C:\\Users\\iwasf\\Dropbox\\School\\CS3100\\Projects\\CS3100Project2\\test_proper_write.txt";
-	string simpleOutputFilename = "C:\\Users\\iwasf\\Dropbox\\School\\CS3100\\Projects\\CS3100Project2\\test_output_variant.txt";
+	string originalFilename = ".\\test_proper.txt";
+	string outputFilename = ".\\test_proper_write.txt";
+	string simpleOutputFilename = ".\\test_output_variant.txt";
 
 	myTree.read(originalFilename);
 	myTree.write(outputFilename);
