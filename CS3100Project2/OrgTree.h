@@ -8,203 +8,122 @@
 #define TREENODEPTR TreeNode*
 #define TREENULLPTR NULL
 
-
 using namespace std;
 
-/* Represent a single general tree of the hierarchy of an organization.
+
+/*  Represent a single general tree of the hierarchy of an organization.
 
 	Nodes in the tree represent an employee with a name and title.
 */
 class OrgTree
 {
 private:
-	void find_and_replace(string& source, const string& find, const string& replace) {
-		for (string::size_type i = source.find(find, 0); i != string::npos; i = source.find(find, i)) {
-			source.replace(i, find.length(), replace);
-			i += replace.length();
-		}
-	}
+	/*  Helper function for reading from a file.
 
-	bool parseLineFromFile(string& inputLine, string& title, string& name) {
-		find_and_replace(inputLine, ", ", ",");
-		istringstream iss(inputLine);
-		
-		title = "";
-		name = "";
+		Find all instances of ", " and replace with ","
 
-		getline(iss, title, ',');
-		getline(iss, name, ',');
+		Worst-case asymptotic run-time: T(n^2)
+		Best-case asymptotic run-time: T(n)
+	*/
+	void find_and_replace(string& source, const string& find, const string& replace);
 
-		if (title == "") {
-			return false;
-		}
-		else if (name == "") {
-			return false;
-		}
+	/*  Helper function for reading from a file.
 
-		return true;
-	}
+		Parse name and title information from a single line of the file.
+
+		Return false if either the title or name could not be read properly.
+
+		Worst-case asymptotic run-time: T(1)
+		Best-case asymptotic run-time: T(1)
+	*/
+	bool parseLineFromFile(string& inputLine, string& title, string& name);
 
 public:
 	TREENODEPTR root;
 	int size;
 
-	OrgTree()
-	{
-		this->size = 0;
-		this->root = TREENULLPTR;
-	}
+	/*  OrgTree constructor, set the root pointer to null and initialize size to 0.
 
-	~OrgTree()
-	{
-		if (this->root) {
-			delete root;
-		}
-	}
+		Worst-case asymptotic run-time: T(1)
+		Best-case asymptotic run-time: T(1)
+	*/
+	OrgTree();
 
-	void addRoot(string title, string name) {
-		TreeNode* newRoot = new TreeNode(title, name);
-	
-		// Only set the leftmost child of the new TreeNode if we already have a root.
-		if (this->root) {
-			this->root->setParent(newRoot);
-			newRoot->setLeftChild(this->root);
-		}
+	/*  OrgTree destructor, release all memory allocation for TreeNode pointers for this OrgTree.
 
-		this->size++;
-		this->root = newRoot;
-	}
+		Worst-case asymptotic run-time: T(n)
+		Best-case asymptotic run-time: T(1)
+	*/
+	~OrgTree();
 
-	TREENODEPTR getRoot() {
-		return this->root;
-	}
+	void addRoot(string title, string name);
 
-	TREENODEPTR leftmostChild(TREENODEPTR node) {
-		return node->getLeftChild();
-	}
+	TREENODEPTR getRoot();
+	TREENODEPTR leftmostChild(TREENODEPTR node);
+	TREENODEPTR rightSibling(TREENODEPTR node);
 
-	TREENODEPTR rightSibling(TREENODEPTR node) {
-		return node->getRightSibling();
-	}
+	/*  Find a TreeNode in our OrgTree with the given title.
 
-	TREENODEPTR find(string title) {
-		return this->root->find(title);
-	}
+		Worst-case asymptotic run-time: T(n)
+		Best-case asymptotic run-time: T(1)
+	*/
+	TREENODEPTR find(string title);
 
-	void hire(TREENODEPTR employer, string newTitle, string newName) {
-		TREENODEPTR newNode = new TreeNode(newTitle, newName);
-		employer->appendChild(newNode);
-		this->size++;
-	}
+	/*  Hire a new employee under employer, adding it to our OrgTree as necessary.
 
-	void hire(TREENODEPTR employer, TREENODEPTR employee) {
-		employer->appendChild(employee);
-		this->size++;
-	}
+		Worst-case asymptotic run-time: T(n)
+		Best-case asymptotic run-time: T(1)
+	*/
+	void hire(TREENODEPTR employer, string newTitle, string newName);
 
-	bool fire(string formerTitle) {
-		if (this->root == TREENULLPTR) {
-			// Can't fire anybody if there isn't even a root node
-			return false;
-		}
+	/*  Helper overload of hire that uses an existing TreeNode object.
 
-		if (formerTitle == this->root->getTitle()) {
-			// Disallow firing the root node
-			return false;
-		}
+		This is mostly used in my test harness for thoroughness.
 
-		TreeNode* childToFire = this->find(formerTitle);
+		Worst-case asymptotic run-time: T(1)
+		Best-case asymptotic run-time: T(1)
+	*/
+	void hire(TREENODEPTR employer, TREENODEPTR employee);
 
-		if (childToFire == NULL) {
-			return false;
-		}
+	/*  Fire an employee with the given title from the OrgTree, moving any of his children up one.
 
-		childToFire->parent->fireChild(childToFire);
-		this->size--;
-		return true;
-	}
+		Worst-case asymptotic run-time: T(n)
+		Best-case asymptotic run-time: T(1)
+	*/
+	bool fire(string formerTitle);
 
-	bool read(string filename) {
-		ifstream infile(filename);
-		if (!infile.good()) {
-			// The file doesn't exist.
-			return false;
-		}
+	/*  Read in a string representation of the current tree from the given filename, and construct an OrgTree from it.
 
-		string line;
-		string title;
-		string name;
+		Worst-case asymptotic run-time: T(n)
+		Best-case asymptotic run-time: T(1)
+	*/
+	bool read(string filename);
 
-		bool complete = false;
+	/*  Write a string representation of the current tree to the given filename.
 
-		getline(infile, line);
+		Worst-case asymptotic run-time: T(n)
+		Best-case asymptotic run-time: T(1)
+	*/
+	void write(string filename);
 
-		if (line.empty()) {
-			return false;
-		}
+	/*  Return the current size (i.e the number of nodes) of the current tree.
 
-		if (!this->parseLineFromFile(line, title, name)) {
-			return false;
-		}
+		Worst-case asymptotic run-time: T(1)
+		Best-case asymptotic run-time: T(1)
+	*/
+	unsigned int getSize();
 
-		this->addRoot(title, name);
-		TreeNode* currentRoot = this->root;
+	/*  Print a string representation of the given sub tree root node to cout.
 
-		while (getline(infile, line)) {
-			if (complete) {
-				// We've determined that the tree has ended, but there is still data in the file!
-				delete this->root;
-				return false;
-			}
-			if (line == ")") {
-				if (currentRoot == this->root) {
-					// We're back at the root node, so we're done with the tree.
-					// Don't return right away, continue on to see if there are any other lines in the file
-					// in which case the format is invalid.
-					complete = true;
-					continue;
-				}
+		Worst-case asymptotic run-time: T(n)
+		Best-case asymptotic run-time: T(1)
+	*/
+	void printSubTree(TREENODEPTR subTreeRoot);
 
-				currentRoot = currentRoot->getParent();
-				continue;
-			}
+	/*  Print a string representation of the given sub tree root node to the given output stream.
 
-			if (!this->parseLineFromFile(line, title, name)) {
-				// We couldn't parse this line of input, meaning the file is formatted incorrectly.
-				delete this->root;
-				return false;
-			}
-
-			TreeNode* newTreeNode = new TreeNode(title, name);
-			this->hire(currentRoot, newTreeNode);
-			currentRoot = newTreeNode;
-		}
-
-		return complete;
-	}
-
-	void write(string filename) {
-		ofstream outputFile(filename);
-
-		if (!outputFile.is_open()) {
-			// We couldn't open the file for some reason.
-			// Not sure what to do in this case.
-			return;
-		}
-
-		string outputData = this->root->outputTree();
-		outputFile << outputData;
-	}
-
-	unsigned int getSize() {
-		return this->size;
-	}
-
-	void printSubTree(TREENODEPTR subTreeRoot) {
-		subTreeRoot->printTree("", cout);
-	}
-
-	void printSubTree(TREENODEPTR subTreeRoot, ostream& os) {
-		subTreeRoot->printTree("", os);
-	}
+		Worst-case asymptotic run-time: T(n)
+		Best-case asymptotic run-time: T(1)
+	*/
+	void printSubTree(TREENODEPTR subTreeRoot, ostream& os);
 };

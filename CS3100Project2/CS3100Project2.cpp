@@ -4,9 +4,12 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <direct.h>
 #include "OrgTree.h"
 
+
 using namespace std;
+
 
 TREENODEPTR president;
 TREENODEPTR vpSales;
@@ -650,6 +653,7 @@ bool testGetSize() {
 
 bool testWrite() {
 	OrgTree& myTree = *(new OrgTree());
+
 	string originalFilename = ".\\test_proper.txt";
 	string outputFilename = ".\\test_proper_write.txt";
 	string simpleOutputFilename = ".\\test_output_variant.txt";
@@ -699,7 +703,7 @@ bool testWrite() {
 
 bool testRead() {
 	OrgTree& myTree = *(new OrgTree());
-	string originalFilename = "C:\\Users\\iwasf\\Dropbox\\School\\CS3100\\Projects\\CS3100Project2\\test_proper.txt";
+	string originalFilename = ".\\test_proper.txt";
 
 	bool success = myTree.read(originalFilename);
 
