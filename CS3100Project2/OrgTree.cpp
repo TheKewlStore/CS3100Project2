@@ -24,14 +24,6 @@ OrgTree::~OrgTree() {
 }
 
 
-void OrgTree::find_and_replace(string& source, const string& find, const string& replace) {
-	for (string::size_type i = source.find(find, 0); i != string::npos; i = source.find(find, i)) {
-		source.replace(i, find.length(), replace);
-		i += replace.length();
-	}
-}
-
-
 bool OrgTree::parseLineFromFile(string& inputLine, string& title, string& name) {
 	// Removing call to find_and_replace because it runs in T(n^2) time which is not acceptable.
 	// find_and_replace(inputLine, ", ", ",");

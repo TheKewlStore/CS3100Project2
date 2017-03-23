@@ -8,6 +8,11 @@
 #define TREENODEPTR TreeNode*
 #define TREENULLPTR NULL
 
+/*  This OrgTree uses a binaryized tree of TreeNodes.
+
+	Implementation of nodes in the tree are contained in the TreeNode class.
+*/
+
 using namespace std;
 
 
@@ -18,15 +23,6 @@ using namespace std;
 class OrgTree
 {
 private:
-	/*  Helper function for reading from a file.
-
-		Find all instances of ", " and replace with ","
-
-		Worst-case asymptotic run-time: T(n^2)
-		Best-case asymptotic run-time: T(n)
-	*/
-	void find_and_replace(string& source, const string& find, const string& replace);
-
 	/*  Helper function for reading from a file.
 
 		Parse name and title information from a single line of the file.
