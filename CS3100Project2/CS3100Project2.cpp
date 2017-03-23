@@ -70,7 +70,7 @@ void setupTree(OrgTree& tree) {
 			softwareEngineerII->setParent(magicBagLeader);
 			softwareEngineerI->setRightSibling(softwareEngineerII);
 
-	tree.root = president;
+	tree.setRoot(president);
 }
 
 
@@ -196,6 +196,8 @@ bool verifyCompleteTree(OrgTree& myTree, string functionName) {
 		cout << functionName + " did not set the root's leftmost child to Software Engineer II" << endl;
 		return false;
 	}
+
+	return true;
 }
 
 
@@ -239,7 +241,7 @@ bool testAppendChild() {
 		cout << "TreeNode::appendChild() fails to return the right last child after one appendChild!" << endl;
 		return false;
 	}
-	else if (firstChild->parent != parent) {
+	else if (firstChild->getParent() != parent) {
 		cout << "TreeNode::appendChild() fails to set the parent pointer for the first child!" << endl;
 		return false;
 	}
@@ -250,7 +252,7 @@ bool testAppendChild() {
 		cout << "TreeNode::appendChild() fails to return the right last child after two appendChilds!" << endl;
 		return false;
 	}
-	else if (secondChild->parent != parent) {
+	else if (secondChild->getParent() != parent) {
 		cout << "TreeNode::appendChild() fails to set the parent pointer for the second child!" << endl;
 		return false;
 	}
@@ -263,7 +265,7 @@ bool testAppendChild() {
 bool testConstructor() {
 	OrgTree myTree = OrgTree();
 
-	if (myTree.root != TREENULLPTR) {
+	if (myTree.getRoot() != TREENULLPTR) {
 		cout << "OrgTree::OrgTree() didn't initialize the root pointer to null properly!" << endl;
 		return false;
 	} 
@@ -278,7 +280,7 @@ bool testAddRoot() {
 
 	myTree.addRoot("VP Software Development", "Ayn Rand");
 
-	TREENODEPTR rootPtr = myTree.root;
+	TREENODEPTR rootPtr = myTree.getRoot();
 
 	if (rootPtr == TREENULLPTR) {
 		cout << "OrgTree::addRoot() did not set the root attribute properly!" << endl;
@@ -287,20 +289,20 @@ bool testAddRoot() {
 
 	TreeNode& root = *rootPtr;
 
-	if (root.title != "VP Software Development") {
+	if (root.getTitle() != "VP Software Development") {
 		cout << "OrgTree::addRoot() did not create a TreeNode with the proper title" << endl;
-		cout << "OrgTree::addRoot() - Expected title: President Actual title: " << root.title << endl;
+		cout << "OrgTree::addRoot() - Expected title: President Actual title: " << root.getTitle() << endl;
 		return false;
 	}
-	else if (root.name != "Ayn Rand") {
+	else if (root.getName() != "Ayn Rand") {
 		cout << "OrgTree::addRoot() did not create a TreeNode with the proper name" << endl;
-		cout << "OrgTree::addRoot() - Expected name: Ayn Rand Actual title: " << root.name << endl;
+		cout << "OrgTree::addRoot() - Expected name: Ayn Rand Actual title: " << root.getName() << endl;
 		return false;
 	}
 
 	myTree.addRoot("President", "George Orwell");
 
-	TREENODEPTR newRootPtr = myTree.root;
+	TREENODEPTR newRootPtr = myTree.getRoot();
 
 	if (newRootPtr == TREENULLPTR) {
 		cout << "OrgTree::addRoot() sets a nullptr as root after first addRoot!" << endl;
@@ -309,24 +311,23 @@ bool testAddRoot() {
 
 	TreeNode& newRoot = *newRootPtr;
 
-	if (newRoot.title == "VP Software Development" || newRoot.name == "Ayn Rand") {
+	if (newRoot.getTitle() == "VP Software Development" || newRoot.getName() == "Ayn Rand") {
 		cout << "OrgTree::addRoot() did not update the root ptr, it's still Ayn Rand" << endl;
 		return false;
 	}
-	else if (newRoot.title != "President" || newRoot.name != "George Orwell") {
+	else if (newRoot.getTitle() != "President" || newRoot.getName() != "George Orwell") {
 		cout << "OrgTree::addRoot() sets us to a totally random TreeNode after second call!" << endl;
-		cout << "OrgTree::addRoot() - Title: " << newRoot.title << " Name: " << newRoot.name << endl;
+		cout << "OrgTree::addRoot() - Title: " << newRoot.getTitle() << " Name: " << newRoot.getName() << endl;
 		return false;
 	}
 	else if (newRoot.getLeftChild() != rootPtr) {
 		cout << "OrgTree::addRoot() doesn't update the leftChild attribute of the new root TreeNode!" << endl;
 		return false;
 	}
-	else if (root.parent != newRootPtr) {
+	else if (root.getParent() != newRootPtr) {
 		cout << "OrgTree::addRoot() doesn't update the parent attribute of the old root TreeNode!" << endl;
 		return false;
 	}
-	
 	
 	return true;
 }
@@ -342,7 +343,7 @@ bool testGetRoot() {
 		return false;
 	}
 
-	myTree.root = president;
+	myTree.setRoot(president);
 
 	if (myTree.getRoot() != president) {
 		cout << "OrgTree::getRoot() does not return the root attribute pointer!" << endl;
@@ -554,7 +555,7 @@ bool testFire() {
 		cout << "OrgTree::fire() reports successful deletion of the root node! Not Allowed!" << endl;
 		return false;
 	}
-	else if (myTree.root != president) {
+	else if (myTree.getRoot() != president) {
 		cout << "OrgTree::fire() reports failure on deletion of root but the root node was still modified!" << endl;
 		return false;
 	}
@@ -646,6 +647,21 @@ bool testGetSize() {
 		cout << "OrgTree::getSize() not equal to 12 after setting up entire tree" << endl;
 		return false;
 	}
+
+	myTree.fire("Software Engineer II");
+
+	if (myTree.getSize() != 11) {
+		cout << "OrgTree::getSize() not equal to 11 after firing one Software Engineer II" << endl;
+		return false;
+	}
+
+	myTree.fire("VP Software Development");
+	
+	if (myTree.getSize() != 10) {
+		cout << "OrgTree::getSize() not equal to 7 after firing VP Software Development" << endl;
+		return false;
+	}
+
 
 	return true;
 }
@@ -781,6 +797,32 @@ void checkTestSuccess(bool success, int& passes, int& failures) {
 
 int main()
 {
+	OrgTree o1, o2;
+
+	// Adding roots should make a linear tree
+	o1.addRoot("R1", "R1");
+	o1.addRoot("R2", "R2");
+	o1.addRoot("R3", "R3");
+
+	o1.printSubTree(o1.getRoot()); //printSubTree from root
+
+	o1.hire(o1.getRoot(), "R3C1", "R3C1"); //add two children to root
+	o1.hire(o1.getRoot(), "R3C2", "R3C2");
+
+	o1.hire(o1.find("R3C1"), "R3C1C1", "R3C1C1");//test find on leaf node and hire to it
+
+	cout << o1.getSize() << endl;
+	o1.printSubTree(o1.getRoot()); //printSubTree from root
+
+	o1.fire("R3C1"); //fire an internal node
+	cout << o1.getSize() << endl;
+	o1.printSubTree(o1.getRoot());
+
+	// Write out a tree and read it back in to a new tree, then print
+	o1.write("output.txt");
+	o2.read("output.txt");
+	o2.printSubTree(o2.getRoot()); //printSubTree from root
+
 	int passes = 0;
 	int failures = 0;
 

@@ -30,14 +30,14 @@ using namespace std;
 */
 class TreeNode
 {
-public:
+private:
 	string title;
 	string name;
 
 	TreeNode* parent;
 	TreeNode* rightSibling;
 	TreeNode* leftChild;
-
+public:
 	/*  Empty constructor.
 		Set all instance variables to null or empty string.
 

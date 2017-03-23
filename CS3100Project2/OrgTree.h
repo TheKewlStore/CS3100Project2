@@ -23,6 +23,9 @@ using namespace std;
 class OrgTree
 {
 private:
+	TREENODEPTR root;
+	int size;
+
 	/*  Helper function for reading from a file.
 
 		Parse name and title information from a single line of the file.
@@ -35,9 +38,6 @@ private:
 	bool parseLineFromFile(string& inputLine, string& title, string& name);
 
 public:
-	TREENODEPTR root;
-	int size;
-
 	/*  OrgTree constructor, set the root pointer to null and initialize size to 0.
 
 		Worst-case asymptotic run-time: T(1)
@@ -57,6 +57,8 @@ public:
 	TREENODEPTR getRoot();
 	TREENODEPTR leftmostChild(TREENODEPTR node);
 	TREENODEPTR rightSibling(TREENODEPTR node);
+
+	void setRoot(TREENODEPTR newRoot);
 
 	/*  Find a TreeNode in our OrgTree with the given title.
 

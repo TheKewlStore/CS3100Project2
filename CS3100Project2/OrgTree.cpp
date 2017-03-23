@@ -66,6 +66,10 @@ TREENODEPTR OrgTree::getRoot() {
 }
 
 
+void OrgTree::setRoot(TREENODEPTR newRoot) {
+	this->root = newRoot;
+}
+
 TREENODEPTR OrgTree::leftmostChild(TREENODEPTR node) {
 	return node->getLeftChild();
 }
@@ -111,7 +115,7 @@ bool OrgTree::fire(string formerTitle) {
 		return false;
 	}
 
-	childToFire->parent->fireChild(childToFire);
+	childToFire->getParent()->fireChild(childToFire);
 	this->size--;
 	return true;
 }
