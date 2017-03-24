@@ -11,6 +11,8 @@
 /*  This OrgTree uses a binaryized tree of TreeNodes.
 
 	Implementation of nodes in the tree are contained in the TreeNode class.
+
+	Overhead of this implementation: 3n pointers for a tree with n nodes.
 */
 
 using namespace std;

@@ -180,6 +180,13 @@ void TreeNode::fireChild(TreeNode* child) {
 		// T(1)
 		this->appendChild(hisChild);
 	}
+
+	// Clear up the memory reference for the child we just fired.
+	// Set all of his pointers to null first, so we don't end up trying to delete his previous nodes.
+	child->setParent(nullptr);
+	child->setLeftChild(nullptr);
+	child->setRightSibling(nullptr);
+	delete child;
 }
 
 string TreeNode::formatString() {
